@@ -1,0 +1,59 @@
+services:
+  # Redis 服务
+  # 如果需要
+  # redis:
+  #   image: redis:7.0.12  # 使用 Redis 7.0.12 镜像
+  #   container_name: redis-server  # 指定容器名称为 redis-server
+  #   ports:
+  #     - "6379:6379"  # 将容器的 6379 端口映射到主机的 6379 端口
+  #   volumes:
+  #     - /home/redis/redis.conf:/etc/redis/redis.conf  # 挂载 Redis 配置文件
+  #     - /home/redis/data:/data  # 挂载 Redis 数据目录
+  #   restart: always  # 总是重新启动容器
+
+  # MySQL 服务
+  mysql:
+    image: mysql:latest  # 最新的 MySQL 镜像
+    container_name: mysql-server  # 指定容器名称为 mysql-server
+    ports:
+      - "3306:3306"  # 将容器的 3306 端口映射到主机的 3306 端口
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456  # 设置 MySQL root 用户密码
+      MYSQL_DATABASE: iao  # 创建数据库 iao
+    # volumes:
+      # - /home/mysql/data:/var/lib/mysql  # 挂载 MySQL 数据目录
+      # - /home/mysql/conf:/etc/mysql/conf.d  # 挂载 MySQL 配置文件目录
+    restart: always  # 总是重新启动容器
+  
+  # Python - bupi
+  bupi:
+    build:
+      context: ./python
+      dockerfile: Dockerfile
+    container_name: bupi
+    ports:
+      - "5000:5000"  # 将容器的 5000 端口映射到主机的 5000 端口
+
+  # Kotlin - security
+  security:
+    build:
+      context: ./security
+      dockerfile: Dockerfile
+    container_name: security
+    ports:
+      - "6100:6100"
+    depends_on:
+      # - redis  # 依赖 Redis 服务
+      - mysql  # 依赖 MySQL 服务
+
+  # web - oihi
+  oihi:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    environment:
+        - AUTH_TRUST_HOST=true
+        - AUTH_URL=http://192.168.254.131:3000
+        - AUTH_SECRET="E2lzlNhwkabEkpDpVJ0WJ5NB8jTnY8l5sFnE5w4tGM8="
+    ports:
+      - "3000:3000"
