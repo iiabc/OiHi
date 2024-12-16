@@ -19,7 +19,8 @@ RUN pnpm install --offline
 COPY oihi/ .
 
 # 直接复制本地的 .env.local 文件到容器中
-COPY .env.local /web/.env.local
+# 暂时移除
+#COPY .env.local /web/.env.local
 
 # 构建 Next.js 应用
 RUN pnpm build
