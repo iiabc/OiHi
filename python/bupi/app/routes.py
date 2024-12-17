@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from .services import create_session, get_sessions, add_message, get_messages
+from .services import create_session, get_sessions, add_message, get_messages, delete_session
 from app.answer.knowledge_base import KnowledgeBase
 
 import json
@@ -60,3 +60,12 @@ def init_routes(app):
         if response == "已添加消息":
             return jsonify(messages), 201  # 返回完整的消息列表
         return jsonify({"error": response}), 400
+
+    @app.route('/users/<int:user_id>/sessions/<int:session_id>', methods=['DELETE'])
+    def delete_user_session(user_id, session_id):
+        """删除指定用户的会话"""
+        if delete_session(user_id, session_id):
+            return jsonify({"message": "会话已删除"}), 200
+        else:
+            return jsonify({"error": "会话不存在"}), 404
+

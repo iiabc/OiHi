@@ -18,6 +18,7 @@ import {
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClientBupiUrl } from "@/utils/api/api";
+import { useToast } from "@/hooks/use-toast";
 
 // 定义会话数据的类型
 interface Session {
@@ -33,22 +34,37 @@ export function SilderSession({
 }) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const router = useRouter();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    // 请求获取会话列表
-    const fetchSessions = async () => {
-      if (!userId) return;
+  // 获取会话列表
+  const fetchSessions = async () => {
+    if (!userId) return;
 
-      try {
-        const response = await fetch(apiClientBupiUrl(`/users/${userId}/sessions`));
-        if (response.ok) {
-          const data = await response.json();
-          setSessions(data);
-        }
-      } catch (error) {
+    try {
+      const response = await fetch(apiClientBupiUrl(`/users/${userId}/sessions`));
+      if (response.ok) {
+        const data = await response.json();
+        setSessions(data);
+      } else {
+        toast({
+          title: "错误",
+          description: "无法加载会话列表，请稍后再试",
+          variant: "destructive",
+          duration: 3000,
+        });
       }
-    };
+    } catch (error) {
+      toast({
+        title: "错误",
+        description: "发生网络错误，请检查连接",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
 
+  // 页面加载时获取会话列表
+  useEffect(() => {
     fetchSessions();
   }, [userId]);
 
@@ -75,6 +91,39 @@ export function SilderSession({
         ]);
       }
     } catch (error) {
+      toast({
+        title: "创建会话失败",
+        description: "发生网络错误，请检查连接",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+
+  // 请求删除会话
+  const deleteSession = async (sessionId: number) => {
+    try {
+      const response = await fetch(apiClientBupiUrl(`/users/${userId}/sessions/${sessionId}`), {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        // 删除会话后重新获取会话列表
+        fetchSessions();
+      } else {
+        toast({
+          title: "删除会话失败",
+          description: "无法删除会话，请稍后再试",
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "删除会话失败",
+        description: "发生网络错误，请检查连接",
+        variant: "destructive",
+        duration: 3000,
+      });
     }
   };
 
@@ -125,7 +174,8 @@ export function SilderSession({
                 side="right"
                 align="start"
               >
-                <DropdownMenuItem className="hover:bg-gray-200">
+                <DropdownMenuItem className="hover:bg-gray-200"
+                  onclick={() => deleteSession(item.id)}>
                   <Trash2 className="text-muted-foreground mr-2" />
                   <span>删除记录</span>
                 </DropdownMenuItem>

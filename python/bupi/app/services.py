@@ -69,3 +69,14 @@ def get_messages(user_id, session_id):
     users_data = load_data(user_id)
     user = get_user(users_data, user_id)
     return user["sessions"].get(str(session_id), {}).get("messages", [])
+
+def delete_session(user_id, session_id):
+    """删除指定用户的会话"""
+    users_data = load_data(user_id)
+    user = get_user(users_data, user_id)
+
+    if str(session_id) in user["sessions"]:
+        del user["sessions"][str(session_id)]
+        save_data(user_id, users_data)
+        return True
+    return False
