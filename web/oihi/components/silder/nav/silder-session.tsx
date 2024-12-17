@@ -175,7 +175,7 @@ export function SilderSession({
                 align="start"
               >
                 <DropdownMenuItem className="hover:bg-gray-200"
-                  onclick={() => deleteSession(item.id)}>
+                  onClick={() => deleteSession(item.id)}>
                   <Trash2 className="text-muted-foreground mr-2" />
                   <span>删除记录</span>
                 </DropdownMenuItem>

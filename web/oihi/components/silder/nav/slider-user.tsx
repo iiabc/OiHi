@@ -31,10 +31,10 @@ export function SilderUser({
 
   // 登出处理函数
   const handleLogout = async () => {
+    signOut();
     if (session?.user?.token) {
       await logoutRequest(session.user.token);
     }
-    signOut();
   };
 
   return (
